@@ -14,7 +14,6 @@ queue = Queue()
 def audio_callback(indata, frames, time, status):
     if status:
         print(status, flush=True)
-    print(type(indata))
     queue.put(indata)
 
 # Audio in object
@@ -28,7 +27,13 @@ def update():
         audio_buf = queue.get(block=True)
     except Empty:
         pass
-    # process
+    # process (temporarily calculating RMS)
+    audio_buf = np.power(audio_buf, 2)
+    ms = np.mean(audio_buf)
+    if ms > 0.1:
+        print("1")
+    else:
+        print("o")
 
 
 # Setup is done in here
@@ -48,4 +53,6 @@ def main():
 
 
 if __name__ == "__main__":
+    setup()
     main()
+    end_program()
