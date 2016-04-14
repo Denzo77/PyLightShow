@@ -31,7 +31,6 @@ def update():
     # process
 
 
-
 # Setup is done in here
 def setup():
     audio_stream.start()
@@ -39,7 +38,7 @@ def setup():
 
 # Stuff to do when exiting
 def end_program():
-    audio_stream.close()
+    audio_stream.stop()
 
 
 # Main loop
