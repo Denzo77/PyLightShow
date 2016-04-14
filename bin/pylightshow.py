@@ -1,30 +1,18 @@
 #!/usr/bin/env python3
-
+import sound_input as sound
 import numpy as np
-import sounddevice as sd
-from queue import Queue, Empty
-import time
+from queue import Empty
 
 
-# Global Variables:
-queue = Queue()
-
-
-# This is called from another thread once audio buffer is filled
-def audio_callback(indata, frames, time, status):
-    if status:
-        print(status, flush=True)
-    queue.put(indata)
-
-# Audio in object
-audio_stream = sd.InputStream(channels=1, samplerate=44100.0, callback=audio_callback, blocksize=1024)
-
-
-# All calculations are performed here
 def update():
+    """
+    Calculations are done in this. Intended for future abstraction.
+    Currently has a test function.
+    :return:
+    """
     # get audio out of queue
     try:
-        audio_buf = queue.get(block=True)
+        audio_buf = sound.queue.get(block=True)
     except Empty:
         pass
     # process (temporarily calculating RMS)
@@ -36,23 +24,12 @@ def update():
         print("o")
 
 
-# Setup is done in here
-def setup():
-    audio_stream.start()
-
-
-# Stuff to do when exiting
-def end_program():
-    audio_stream.stop()
-
-
-# Main loop
-def main():
+def main():  # This is the main loop
     while True:
         update()
 
 
 if __name__ == "__main__":
-    setup()
+    sound.stream.start()
     main()
-    end_program()
+    sound.stream.stop()
