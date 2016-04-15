@@ -9,18 +9,18 @@ Handle details of audio input stream.
 CHANNELS = 1
 SAMPLERATE = 44100.0
 BLOCKSIZE = 1024
+DTYPE = None
 
 queue = Queue()  # For passing audio between files
 
 
 def audio_callback(indata, frames, time, status):
-    """
-    Callback for passing stream to main loop
-    :param indata: Audio stream in np arrays of size blocksize.
+    """Callback for passing stream to main loop. This runs in a separate thread.
+    :param indata: Audio stream in.
+    :type indata: Numpy array of type DTYPE and size BLOCKSIZE
     :param frames: Not used.
     :param time:   Not Used.
     :param status:
-    :return:
     """
     if status:
         print(status, flush=True)
