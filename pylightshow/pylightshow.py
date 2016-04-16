@@ -1,24 +1,27 @@
 #!/usr/bin/env python3
 import sound_input as sound
 from pybeatdetect import GuiBeatDetect
+# from pybeatdetect import SimpleBeatDetect
 import numpy as np
 from queue import Empty
 import pygame
+import sys
 
 # GUI
 pygame.init()
 clock = pygame.time.Clock()
 size = width, height = 1024, 768
 screen = pygame.display.set_mode(size)
-COLOUR_BACKGROUND = (40, 40, 40)
+COLOUR_BACKGROUND = (30, 30, 30)
 
 bar_width = 40
+
 
 def update():
     """
     Calculations are done in this. Intended for future abstraction.
     Currently has a test function.
-    :return:
+    :return: RMS value of audio_buf. Doubled to scale to +-1
     """
     # get audio out of queue
     try:
@@ -28,33 +31,29 @@ def update():
     # process (temporarily calculating RMS)
     audio_buf = np.power(audio_buf, 2)
     audio_buf = np.mean(audio_buf)
-    ms = np.sqrt(audio_buf)
-    return ms
-
-
-def display(vol_instant, vol_average):
-    height_instant = int(vol_instant * 2000)
-    height_average = int(vol_average * 2000)
-    bar_vol_instant.height = -height_instant
-    bar_vol_average.height = -height_average
-    pygame.draw.rect(screen, COLOUR_VOL_INSTANT, bar_vol_instant)
-    pygame.draw.rect(screen, COLOUR_VOL_AVERAGE, bar_vol_average)
+    rms = 2 * np.sqrt(audio_buf)
+    return rms
 
 
 def main():  # This is the main loop
-    b = GuiBeatDetect(average_weight=0.8, sensitivity_grad=-2.0e-8, sensitivity_offset=1.01, cutoff=0.001,
-                        x_pos=(width-bar_width)/2, y_pos=height-40, width=bar_width, y_scale=2000)
+    sound.stream.start()
+    b = GuiBeatDetect(average_weight=0.1, sensitivity_grad=-2.0e-3, sensitivity_offset=1.4, cutoff=0.001,
+                        left=(width-bar_width)/2, top=40, width=bar_width, height=700)
+    # b = SimpleBeatDetect(average_weight=0.1, sensitivity_grad=-2.0e-2, sensitivity_offset=1.4, cutoff=0.001)
     while True:
         val = update()
         if val is not None:
             b.update(val)
         screen.fill(COLOUR_BACKGROUND)
-        b.draw(screen, b)
+        b.draw(screen)
         pygame.display.flip()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sound.stream.stop()
+                pygame.quit()
+                sys.exit
         clock.tick(60)
 
 
 if __name__ == "__main__":
-    sound.stream.start()
     main()
-    sound.stream.stop()
