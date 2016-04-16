@@ -61,7 +61,7 @@ class BaseBeatDetect:
         self.vol_average += self.average_weight * difference
         self.variance = self.variance - (self.average_weight * self.variance) + (self.variance_weight * difference * difference)
         print(self.variance, end='\t')
-        self.sensitivity = max((self.sensitivity_grad * self.variance) + self.sensitivity_offset, 1.0)
+        self.sensitivity = max((self.sensitivity_grad * self.variance) + self.sensitivity_offset, 1.0)  # prevent sensitivity from going negative.
         print(self.sensitivity, end='\t')
         threshold = self.vol_average * self.sensitivity
         print(threshold)
