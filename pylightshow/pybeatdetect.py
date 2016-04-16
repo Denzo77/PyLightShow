@@ -1,6 +1,3 @@
-import numpy as np
-
-
 class BasicBeatDetect:
     """Basic beat detection functionality."""
     def __init__(self, average_weight=0.8, sensitivity_grad=-2.0e-8, sensitivity_offset=1.4, cutoff=0.1):
@@ -30,14 +27,14 @@ class BasicBeatDetect:
 
         NOTES ON ALGORITHM HERE
 
-        :param input: New input for next iteration of algorithm.
-        :type input: float32
+        :param new_level: New input for next iteration of algorithm.
+        :type new_level: float32
         """
         # Calculate new state
         self.vol_instant = new_level
         difference = self.vol_instant - self.vol_average
-        self.vol_average = self.vol_average + (self.average_weight * difference)
-        self.variance = self.variance - (self.average_weight * self.variance) + (self.variance_weight * difference * difference)
+        self.vol_average += self.average_weight * difference
+        self.variance -= (self.average_weight * self.variance) + (self.variance_weight * difference * difference)
         self.sensitivity = (self.sensitivity_grad * self.variance) + self.sensitivity_offset
         threshold = self.vol_average * self.sensitivity
         # Check for beat (basic rising edge filter)
