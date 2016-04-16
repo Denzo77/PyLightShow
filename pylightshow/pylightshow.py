@@ -10,7 +10,7 @@ import sys
 # GUI
 pygame.init()
 clock = pygame.time.Clock()
-size = width, height = 1024, 768
+size = width, height = 1600, 768
 screen = pygame.display.set_mode(size)
 COLOUR_BACKGROUND = (30, 30, 30)
 
@@ -28,11 +28,20 @@ def update():
         audio_buf = sound.queue.get(block=True)
     except Empty:
         pass
-    # process (temporarily calculating RMS)
-    audio_buf = np.power(audio_buf, 2)
-    audio_buf = np.mean(audio_buf)
-    rms = 2 * np.sqrt(audio_buf)
-    return rms
+    # # process (temporarily calculating RMS)
+    # audio_buf = np.power(audio_buf, 2)
+    # audio_buf = np.mean(audio_buf)
+    # rms = 2 * np.sqrt(audio_buf)
+    # return rms
+    return audio_buf
+
+
+def draw_val(indata):
+    indata[:] = indata[:] * 2.0e1
+    x = np.arange(100, 100+len(indata))
+    offset = height/2
+    for i in range(len(indata)):
+        pygame.draw.line(screen, (100, 100, 100), (x[i], offset), (x[i], offset-int(indata[i])), 1)
 
 
 def main():  # This is the main loop
@@ -44,15 +53,16 @@ def main():  # This is the main loop
         val = update()
         if val is not None:
             b.update(val)
-        screen.fill(COLOUR_BACKGROUND)
-        b.draw(screen)
-        pygame.display.flip()
+            screen.fill(COLOUR_BACKGROUND)
+            # b.draw(screen)
+            draw_val(val)
+            pygame.display.flip()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sound.stream.stop()
                 pygame.quit()
                 sys.exit
-        clock.tick(60)
+        # clock.tick(60)
 
 
 if __name__ == "__main__":
