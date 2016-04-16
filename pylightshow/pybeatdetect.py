@@ -1,3 +1,6 @@
+import pygame
+
+
 class BasicBeatDetect:
     """Basic beat detection functionality."""
     def __init__(self, average_weight=0.8, sensitivity_grad=-2.0e-8, sensitivity_offset=1.4, cutoff=0.1):
@@ -59,3 +62,23 @@ class BasicBeatDetect:
         self.sensitivity_grad = sensitivity_grad
         self.sensitivity_offset = sensitivity_offset
         self.cutoff = cutoff
+
+
+class GuiBeatDetect(BasicBeatDetect):
+    def __init__(self, average_weight, sensitivity_grad, sensitivity_offset, cutoff, x_pos, y_pos, width, y_scale):
+        super().__init__(average_weight, sensitivity_grad, sensitivity_offset, cutoff)
+        self.border = 2
+        self.y_scale = y_scale
+        self.bar_vol_instant = pygame.Rect(x_pos, y_pos+2, width, 1)
+        self.bar_vol_average = pygame.Rect(x_pos+self.border, y_pos, width-(2*self.border), 1)
+
+        self.COLOUR_VOL_INSTANT = (150, 150, 150)
+        self.COLOUR_VOL_AVERAGE = (0, 0, 0)
+
+    def draw(self, surface, beat_detect):
+        size_instant = int(beat_detect.vol_instant * -self.y_scale)
+        size_average = int(beat_detect.vol_average * -self.y_scale)
+        self.bar_vol_instant.height = size_instant
+        self.bar_vol_average.height = size_average
+        pygame.draw.rect(surface, self.COLOUR_VOL_INSTANT, self.bar_vol_instant)
+        pygame.draw.rect(surface, self.COLOUR_VOL_AVERAGE, self.bar_vol_average)

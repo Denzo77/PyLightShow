@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import sound_input as sound
-from pybeatdetect import BasicBeatDetect
+from pybeatdetect import GuiBeatDetect
 import numpy as np
 from queue import Empty
 import pygame
@@ -11,13 +11,8 @@ clock = pygame.time.Clock()
 size = width, height = 1024, 768
 screen = pygame.display.set_mode(size)
 COLOUR_BACKGROUND = (40, 40, 40)
-COLOUR_VOL_INSTANT = (150, 150, 150)
-COLOUR_VOL_AVERAGE = (0, 0, 0)
 
 bar_width = 40
-bar_vol_instant = pygame.Rect((width-bar_width)/2, height-38, bar_width, 1)
-bar_vol_average = pygame.Rect((width-bar_width)/2 + 2, height-40, bar_width-4, 1)
-
 
 def update():
     """
@@ -47,13 +42,14 @@ def display(vol_instant, vol_average):
 
 
 def main():  # This is the main loop
-    b = BasicBeatDetect(sensitivity_grad=-2.0e-8, sensitivity_offset=1.01, cutoff=0.001)
+    b = GuiBeatDetect(average_weight=0.8, sensitivity_grad=-2.0e-8, sensitivity_offset=1.01, cutoff=0.001,
+                        x_pos=(width-bar_width)/2, y_pos=height-40, width=bar_width, y_scale=2000)
     while True:
         val = update()
         if val is not None:
             b.update(val)
         screen.fill(COLOUR_BACKGROUND)
-        display(b.vol_instant, b.vol_average)
+        b.draw(screen, b)
         pygame.display.flip()
         clock.tick(60)
 
