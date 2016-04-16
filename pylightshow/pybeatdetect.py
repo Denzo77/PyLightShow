@@ -3,7 +3,7 @@ import numpy as np
 
 class BasicBeatDetect:
     """Basic beat detection functionality."""
-    def __init__(self, average_weight, sensitivity_grad, sensitivity_offset, cutoff):
+    def __init__(self, average_weight=0.8, sensitivity_grad=-2e-8, sensitivity_offset=1.4, cutoff=0.1):
         """Initialises Parameters
         :param average_weight:
         :param sensitivity_grad:
