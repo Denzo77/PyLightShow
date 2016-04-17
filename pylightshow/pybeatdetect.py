@@ -1,14 +1,45 @@
+"""
+Beat onset detection class.
+
+How To Use:
+
+TODO!
+
+Algorithm:
+1. Calculate average volume using a recursive exponential moving average algorithm.
+    X[n] = X[n-1] + k(i - X[n-1])
+    Where:
+        X[n] is the new average.
+        X[n-1] is the previous average.
+        k is the weighting given to the new sample.
+        i is the current volume at that instant.
+2. Calculate variance.
+    V[n] = (1-k) * V[n-1] + kv(i - X[n-1])^2
+    Where:
+        V[n] is the new variance.
+        V[n-1] is the previous variance.
+        kv is the weighting given to the new sample. This is calculated in 'self.set' when a new k is set.
+3. Use the variance to calculate a threshold value.
+    T = X[n] * (m * V[n] + c)
+    Where:
+        T is the threshold.
+        m is the gradient by which to change the threshold w.r.t. variance.
+        c is an offset to add to the threshold.
+5. The current volume is compared with the threshold to determine whether a beat has occured.
+"""
 import numpy as np
 
 
 class BaseBeatDetect:
-    """Basic beat detection functionality."""
+    """
+    Basic beat detection functionality.
+    """
     def __init__(self, average_weight, sensitivity_grad, sensitivity_offset, cutoff):
         """Initialises Parameters
-        :param average_weight:
-        :param sensitivity_grad:
-        :param sensitivity_offset:
-        :param cutoff:
+        :param: average_weight: The weighting assigned to a new value when updating the average.
+        :param: sensitivity_grad:
+        :param: sensitivity_offset:
+        :param: cutoff: The minimum signal level that must be present for a beat to be returned.
         """
         # parameters
         self.average_weight = np.array([0.0])
@@ -28,32 +59,12 @@ class BaseBeatDetect:
         self.set(average_weight, sensitivity_grad, sensitivity_offset, cutoff)
 
     def update(self, new_level):
-        """Perform beat detection on this sample
-
-        Algorithm:
-        1. Calculate average volume using a recursive exponential moving average algorithm.
-            X[n] = X[n-1] + k(i - X[n-1])
-            Where:
-                X[n] is the new average.
-                X[n-1] is the previous average.
-                k is the weighting given to the new sample.
-                i is the current volume at that instant.
-        2. Calculate variance.
-            V[n] = (1-k) * V[n-1] + kv(i - X[n-1])^2
-            Where:
-                V[n] is the new variance.
-                V[n-1] is the previous variance.
-                kv is the weighting given to the new sample. This is calculated in 'self.set' when a new k is set.
-        3. Use the variance to calculate a threshold value.
-            T = X[n] * (m * V[n] + c)
-            Where:
-                T is the threshold.
-                m is the gradient by which to change the threshold w.r.t. variance.
-                c is an offset to add to the threshold.
-        5. The current volume is compared with the threshold to determine whether a beat has occured.
+        """
+        Takes in a new sample and runs the beat onset detection algorithm.
 
         :param new_level: New input for next iteration of algorithm.
         :type new_level: float32
+        :return: None
         """
         # Calculate new state
         self.vol_instant = new_level
@@ -70,16 +81,20 @@ class BaseBeatDetect:
         self.beat = np.logical_and(self.beat, np.logical_not(self.old_beat))
 
     def get(self):
-        """Return True if a beat was detected last cycle"""
+        """
+        :returns: True if a beat has been detected.
+        """
         return self.beat
 
     def set(self, average_weight, sensitivity_grad, sensitivity_offset, cutoff):
-        """Set new Parameters
-        1.
-        :param average_weight:
-        :param sensitivity_grad:
-        :param sensitivity_offset:
-        :param cutoff:
+        """
+        Sets new parameters and calculates the new weighting of the variance.
+
+        :param: average_weight: The weighting assigned to a new value when updating the average.
+        :param: sensitivity_grad:
+        :param: sensitivity_offset:
+        :param: cutoff: The minimum signal level that must be present for a beat to be returned.
+        :return: None
         """
         self.average_weight = average_weight
         self.sensitivity_grad = sensitivity_grad
@@ -89,22 +104,33 @@ class BaseBeatDetect:
 
 
 class SimpleBeatDetect(BaseBeatDetect):
-    """Basic instance of beat onset detection class.
+    """
+    Basic instance of beat onset detection class.
     Extends BaseBeatDetect with default values.
     """
     def __init__(self, average_weight=0.8, sensitivity_grad=1.0, sensitivity_offset=1.01, cutoff=0.01):
         super().__init__(average_weight, sensitivity_grad, sensitivity_offset, cutoff)
 
 
-try:
+try:  # Trying to make it pygame agnostic.
     import pygame
 
 
     class PlotBeatDetect(BaseBeatDetect):
-        """Extends BaseBeatDetect with draw methods.
+        """
+        Extends BaseBeatDetect with draw methods.
         Requires PyGame to function.
         """
         def __init__(self, average_weight, sensitivity_grad, sensitivity_offset, cutoff, position, size):
+            """
+
+            :param: average_weight: The weighting assigned to a new value when updating the average.
+            :param: sensitivity_grad:
+            :param: sensitivity_offset:
+            :param: cutoff: The minimum signal level that must be present for a beat to be returned.
+            :param position:
+            :param size:
+            """
             super().__init__(average_weight, sensitivity_grad, sensitivity_offset, cutoff)
             self.border = 0
             self.position = self.left, self.top = position
@@ -122,7 +148,8 @@ try:
             self.COLOUR_VOL_THRESHOLD = (100, 100, 100)
 
         def dBFS(self, volume):
-            """Calculated the dBFS relative to a maximum of 1.
+            """
+            Calculated the dBFS relative to a maximum of 1.
             Not sure what it is relative to but will be changed to conform to AES standard
             (sine with amplitude 1 is full scale)
             :param volume: RMS volume.
@@ -132,19 +159,23 @@ try:
             return 10.0 * np.log10(volume)
 
         def draw(self, surface):
+            """
+            Draws a plot of the beat detection object(s) on a surface.
+            The plot is drawn at self.position and is bounded by self.size.
+            :param surface: The surface to draw the plot on.
+            :return: None
+            """
             # get dBFS
             size_instant = np.minimum((self.top - self.dBFS(self.vol_instant) * self.scale), 700.0)
             size_average = self.top - self.dBFS(self.vol_average) * self.scale
             size_threshold = self.top - self.dBFS(self.vol_average * self.sensitivity) * self.scale
-            # draw
+            # Loop through beat detection instances, drawing them all.
             for i in range(len(self.vol_instant)):
-                if size_instant[i] > self.bottom:
-                    print(i, end='\t')
-                    print(size_instant[i])
                 pygame.draw.line(surface, self.COLOUR_VOL_THRESHOLD, (self.bar_x_pos[i], self.bottom),
                                  (self.bar_x_pos[i], size_threshold[i]), self.bar_width)
                 pygame.draw.line(surface, self.COLOUR_VOL_AVERAGE, (self.bar_x_pos[i], self.bottom),
                                  (self.bar_x_pos[i], size_average[i]), self.bar_width)
+                # Change the colour of the instantaneous volume plot if there is a beat.
                 if self.beat[i]:
                     pygame.draw.line(surface, self.COLOUR_BEAT_FOUND, (self.bar_x_pos[i], size_average[i]),
                                      (self.bar_x_pos[i], size_instant[i]), self.bar_width)

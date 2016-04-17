@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+"""
+Main script for light show.
+"""
 import sound_input as sound
 from pybeatdetect import PlotBeatDetect
 import pylights
@@ -17,24 +20,16 @@ COLOUR_BACKGROUND = (30, 30, 30)
 bar_width = 40
 
 
-def update(block):
+def update_audio(block):
     """
-    Calculations are done in this. Intended for future abstraction.
-    Currently has a test function.
-    :return: RMS value of audio_buf. Doubled to scale to +-1
+    Gets next set of values from the queue.
+    :return: Array of sound values or None if queue is empty.
     """
-    # get audio out of queue
-    audio_buf = np.zeros(10)
     try:
         audio_buf = sound.queue.get(block=block)
+        return audio_buf
     except Empty:
         return None
-    # # process (temporarily calculating RMS)
-    # audio_buf = np.power(audio_buf, 2)
-    # audio_buf = np.mean(audio_buf)
-    # rms = 2 * np.sqrt(audio_buf)
-    # return rms
-    return audio_buf
 
 
 def main():  # This is the main loop
@@ -48,16 +43,13 @@ def main():  # This is the main loop
     draw_frame = True
     while True:
         draw_frame = not draw_frame
-        val = update(block)
-        if val is not None:
+        val = update_audio(block)
+        if val is not None:  # TODO This entire statement can go into update_audio
             block = False
             b.update(val)
             temp1 = b.dBFS(b.vol_average[1]) * 0.01 + 1.0
             temp2 = b.dBFS(b.vol_average[3]) * 0.01 + 1.0
             temp3 = b.dBFS(b.vol_average[6]) * 0.01 + 1.0
-            print(temp1, end='\t')
-            print(temp2, end='\t')
-            print(temp3)
             light2.set(max(temp1+1.0, 0.0))
             temparray = np.maximum(np.array([temp1, temp2, temp3]), 0.0)
             light3.set(temparray)
