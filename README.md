@@ -10,14 +10,18 @@ Porting lightshow over to python.
 3. [x] Port basic beat onset detection algorithm.
 4. [x] Extend beat detection with FFT.
 5. [ ] Port lighting control.
+    - [ ] Light objects
+    - [ ] Method of saving state (JSON?).
+    - [ ] Scene Manager.
+    - [ ] Serial connections.
 6. [ ] Optimise with Cython/Numba to run fast enough on Raspberry Pi 2 (low priority).
-7. [ ] Move to using OpenGL/OpenGLES (whatever the one the RPi 2 can manage was).
+7. [ ] Move to using OpenGL/OpenGLES (low priority).
 8. [ ] Write tests.
 9. [ ] Fill in setup.py
 
 ## Bugs:
 1. [x] Issues with drawing at 60 Hz - Make update return None when queue is empty + reduced framerate to 30.
-2. [ ] Find alternative to queue for getting data from callback (only interested in latest version)
+2. [ ] ~~Find alternative to queue for getting data from callback~~
 3. [ ] Random level changes on spectrogram - related to (2)?
 4. [x] Fix issue with sensitivity becoming a bool. - changed to use np.maximum
 5. [x] BaseBeatDetect.beat is not returning an array. - Used np.logical_xxx functions.
