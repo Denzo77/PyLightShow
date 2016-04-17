@@ -8,7 +8,7 @@ Todo:
 - Go over documentation
 - Print name of light.
 - Find out how to use PyGame color class
-- Include a 'getter' method?
+- __call__, __eq__ and __get__
 """
 import numpy as np
 import pygame

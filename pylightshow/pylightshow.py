@@ -9,6 +9,7 @@ import numpy as np
 from queue import Empty
 import pygame
 import sys
+import json
 
 # GUI
 pygame.init()
@@ -18,6 +19,45 @@ screen = pygame.display.set_mode(size, pygame.HWSURFACE)
 COLOUR_BACKGROUND = (30, 30, 30)
 
 bar_width = 40
+
+
+def save_state():
+    """
+    Saves state.
+    This is going to be a pain in the arse...
+
+    Method:
+    - Get data:
+        - Beat detectors:
+            - average_weight
+            - sensitivity_grad
+            - sensitivity_offset
+            - cutoff
+            - colours?
+        - Lights?:
+            - damping
+            - is_enabled
+        - Screen size & position?
+    - Convert numpy arrays into dicts? (maybe use json tricks, or json.encodejson())
+    - Concatenate into a set of dicts:
+    - Convert to JSON with json.dumps(save_state) (and any other options I may need)
+    - Write to a file
+    """
+    pass
+
+def load_state():
+    """
+    Load state.
+
+    Method:
+    If save file present:
+        - Load savestate json file.
+        - Load JSON with json.loads(save_state).
+        - Extract relevant entries from dict.
+        - Decode np arrays.
+        - Set data in relevant places.
+    Otherwise, start up with default values.
+    """
 
 
 def update_audio(block):

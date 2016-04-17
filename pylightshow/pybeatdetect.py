@@ -80,7 +80,7 @@ class BaseBeatDetect:
         self.beat = np.logical_and(self.vol_instant > threshold, self.vol_instant > self.cutoff)
         self.beat = np.logical_and(self.beat, np.logical_not(self.old_beat))
 
-    def get(self):
+    def get(self):  # TODO Replace this with __eq__(self)
         """
         :returns: True if a beat has been detected.
         """
