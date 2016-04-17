@@ -29,17 +29,13 @@ def audio_callback(indata, frames, time, status):
     if status:
         print(status, flush=True)
     if any(indata):
-        # outdata = np.abs(fftpack.fft(indata)[:512, 0])
-        # outdata = np.zeros(BLOCKSIZE/2)
         temp = np.abs(fftpack.rfft((indata[:, 0] * window), overwrite_x=True))
         temp = np.power(temp, 2)
-
         outdata = np.zeros(10)
         for i in range(10):
             index1 = 2**i
             index2 = 2**(i+1)
             outdata[i] = np.sum(temp[index1:index2]) * 1.0e-4  # / (index2-index1)
-            # outdata[i] = np.sum(indata[2**i:2**(i+1)])
         queue.put(outdata)
 
 stream = sd.InputStream(device=DEVICE,

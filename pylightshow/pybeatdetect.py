@@ -64,13 +64,10 @@ class BaseBeatDetect:
         self.sensitivity = np.maximum(((self.sensitivity_grad * self.variance) + self.sensitivity_offset), 1.0)  # prevent sensitivity from going negative.
         # print(self.sensitivity, end='\t')
         threshold = self.vol_average * self.sensitivity
-        # print(threshold)
         # Check for beat (basic rising edge filter)
         self.old_beat = self.beat
-        if np.all(self.vol_instant > threshold) and np.all(self.vol_instant > self.cutoff) and np.all(not self.old_beat):
-            self.beat = True
-        else:
-            self.beat = False
+        self.beat = np.logical_and(self.vol_instant > threshold, self.vol_instant > self.cutoff)
+        self.beat = np.logical_and(self.beat, np.logical_not(self.old_beat))
 
     def get(self):
         """Return True if a beat was detected last cycle"""
@@ -139,14 +136,14 @@ try:
             size_instant = np.minimum((self.top - self.dBFS(self.vol_instant) * self.scale), 700.0)
             size_average = self.top - self.dBFS(self.vol_average) * self.scale
             size_threshold = self.top - self.dBFS(self.vol_average * self.sensitivity) * self.scale
-            print(self.sensitivity)
+            # print(self.sensitivity)
             # draw
             for i in range(len(self.vol_instant)):
                 if size_instant[i] > self.bottom:
                     print(i, end='\t')
                     print(size_instant[i])
                 pygame.draw.line(surface, self.COLOUR_VOL_THRESHOLD,(x[i], self.bottom), (x[i], size_threshold[i]), 40)
-                if size_instant[i] > size_threshold[i]:
+                if self.beat[i]:
                     pygame.draw.line(surface, self.COLOUR_BEAT_FOUND, (x[i], self.bottom), (x[i], size_instant[i]), 40)
                 else:
                     pygame.draw.line(surface, self.COLOUR_VOL_INSTANT, (x[i], self.bottom), (x[i], size_instant[i]), 40)
