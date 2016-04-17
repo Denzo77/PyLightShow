@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import sound_input as sound
 from pybeatdetect import PlotBeatDetect
-# from pybeatdetect import SimpleBeatDetect
+import pylights
 import numpy as np
 from queue import Empty
 import pygame
@@ -41,7 +41,9 @@ def main():  # This is the main loop
     sound.stream.start()
     b = PlotBeatDetect(average_weight=0.3, sensitivity_grad=-2.0e-4, sensitivity_offset=1.4, cutoff=0.001,
                        position=(100, 40), size=(400, 700))
-    # b = SimpleBeatDetect(average_weight=0.1, sensitivity_grad=-2.0e-2, sensitivity_offset=1.4, cutoff=0.001)
+    light = pylights.SingleLight('flashy', (800, 50), (100, 100))
+    light2 = pylights.SingleLight('bass', (800, 200), (100, 100))
+    light3 = pylights.MultiLight('colour', (800, 350), (100, 100))
     block = True
     draw_frame = True
     while True:
@@ -50,9 +52,27 @@ def main():  # This is the main loop
         if val is not None:
             block = False
             b.update(val)
+            temp1 = b.dBFS(b.vol_average[1]) * 0.01 + 1.0
+            temp2 = b.dBFS(b.vol_average[3]) * 0.01 + 1.0
+            temp3 = b.dBFS(b.vol_average[6]) * 0.01 + 1.0
+            print(temp1, end='\t')
+            print(temp2, end='\t')
+            print(temp3)
+            light2.set(max(temp1+1.0, 0.0))
+            temparray = np.maximum(np.array([temp1, temp2, temp3]), 0.0)
+            light3.set(temparray)
+            if b.beat[1]:
+                light.set(1.0, False)
+        light.update()
+        light2.update()
+        light3.update()
+        light.set(0.0)
         if draw_frame:
             screen.fill(COLOUR_BACKGROUND)
             b.draw(screen)
+            light.draw(screen)
+            light2.draw(screen)
+            light3.draw(screen)
             pygame.display.flip()
 
         for event in pygame.event.get():

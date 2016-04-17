@@ -3,26 +3,30 @@ Porting lightshow over to python.
 
 ## Project Milestones:
 1. [x] Set up sound input.
-2. [ ] Set up GUI in PyGame.
+2. [ ] Set up visuals in PyGame.
     - [x] Beat detection GUI.
+    - [x] Lighting GUI.
+    - [ ] Sound card selection etc (low priority).
+3. [ ] Set up GUI in PyGame.
+    - [ ] Beat detection GUI.
     - [ ] Lighting GUI.
     - [ ] Sound card selection etc (low priority).
-3. [x] Port basic beat onset detection algorithm.
-4. [x] Extend beat detection with FFT.
-5. [ ] Port lighting control.
-    - [ ] Light objects
+4. [x] Port basic beat onset detection algorithm.
+5. [x] Extend beat detection with FFT.
+6. [ ] Port lighting control.
+    - [x] Light objects
     - [ ] Method of saving state (JSON?).
     - [ ] Scene Manager.
     - [ ] Serial connections.
-6. [ ] Optimise with Cython/Numba to run fast enough on Raspberry Pi 2 (low priority).
-7. [ ] Move to using OpenGL/OpenGLES (low priority).
-8. [ ] Write tests.
-9. [ ] Fill in setup.py
+7. [ ] Optimise with Cython/Numba to run fast enough on Raspberry Pi 2 (low priority).
+8. [ ] Move to using OpenGL/OpenGLES (low priority).
+9. [ ] Write tests.
+10. [ ] Fill in setup.py
 
 ## Bugs:
 1. [x] Issues with drawing at 60 Hz - Make update return None when queue is empty + reduced framerate to 30.
 2. [ ] ~~Find alternative to queue for getting data from callback~~
-3. [ ] Random level changes on spectrogram - related to (2)?
+3. [x] Random level changes on spectrogram - related to (2) - See (1)
 4. [x] Fix issue with sensitivity becoming a bool. - changed to use np.maximum
 5. [x] BaseBeatDetect.beat is not returning an array. - Used np.logical_xxx functions.
 6. [ ] Sensitivity does not change adequately.
@@ -40,6 +44,9 @@ Porting lightshow over to python.
     - Break downs.
     - Phrases.
     - Drops.
+- More GUI stuff:
+    - Move each type to it's own surface and switch to update way instead of redrawing everything.
+    -
 
 ## External Python module Dependencies:
 - PyGame
