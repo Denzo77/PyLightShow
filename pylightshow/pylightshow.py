@@ -47,25 +47,26 @@ def draw_val(indata):
 
 def main():  # This is the main loop
     sound.stream.start()
-    b = GuiBeatDetect(average_weight=0.1, sensitivity_grad=-2.0e-3, sensitivity_offset=1.4, cutoff=0.001,
+    b = GuiBeatDetect(average_weight=0.8, sensitivity_grad=-2.0e-8, sensitivity_offset=1.4, cutoff=0.001,
                         left=(width-bar_width)/2, top=40, width=bar_width, height=700)
     # b = SimpleBeatDetect(average_weight=0.1, sensitivity_grad=-2.0e-2, sensitivity_offset=1.4, cutoff=0.001)
     block = True
+    val = np.zeros(10)
     while True:
         val = update(block)
-        block = False
-        b.update(val)
         if val is not None:
-            screen.fill(COLOUR_BACKGROUND)
-            b.draw(screen)
-            # draw_val(val)
-            pygame.display.flip()
+            block = False
+            b.update(val)
+        screen.fill(COLOUR_BACKGROUND)
+        b.draw(screen)
+        # draw_val(val)
+        pygame.display.flip()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sound.stream.stop()
                 pygame.quit()
                 sys.exit
-        clock.tick(30)
+        clock.tick(60)
 
 
 if __name__ == "__main__":

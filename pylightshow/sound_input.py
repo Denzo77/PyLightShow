@@ -38,7 +38,7 @@ def audio_callback(indata, frames, time, status):
         for i in range(10):
             index1 = 2**i
             index2 = 2**(i+1)
-            outdata[i] = np.sum(temp[index1:index2])  # / (index2-index1)
+            outdata[i] = np.sum(temp[index1:index2]) * 1.0e-4  # / (index2-index1)
             # outdata[i] = np.sum(indata[2**i:2**(i+1)])
         queue.put(outdata)
 
