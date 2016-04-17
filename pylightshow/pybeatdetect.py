@@ -106,7 +106,7 @@ try:
         """
         def __init__(self, average_weight, sensitivity_grad, sensitivity_offset, cutoff, position, size):
             super().__init__(average_weight, sensitivity_grad, sensitivity_offset, cutoff)
-            self.border = 1
+            self.border = 0
             self.position = self.left, self.top = position
             self.size = self.width, self.height = size
             self.bottom = self.top + self.height
@@ -114,6 +114,7 @@ try:
 
             self.channels = 10
             self.bar_width = (self.width // self.channels) - self.border
+            self.bar_x_pos = np.arange(self.left, self.left + self.width, self.bar_width + self.border)
 
             self.COLOUR_VOL_INSTANT = (255, 100, 100)
             self.COLOUR_BEAT_FOUND = (100, 255, 100)
@@ -131,27 +132,25 @@ try:
             return 10.0 * np.log10(volume)
 
         def draw(self, surface):
-            # setup
-            # x = np.linspace(self.left, self.left + self.width, self.channels)
-            x = np.arange(self.left, self.left + self.width, self.bar_width + self.border)
-
             # get dBFS
             size_instant = np.minimum((self.top - self.dBFS(self.vol_instant) * self.scale), 700.0)
             size_average = self.top - self.dBFS(self.vol_average) * self.scale
             size_threshold = self.top - self.dBFS(self.vol_average * self.sensitivity) * self.scale
-            print(self.variance)
-            # print(self.sensitivity)
             # draw
             for i in range(len(self.vol_instant)):
                 if size_instant[i] > self.bottom:
                     print(i, end='\t')
                     print(size_instant[i])
-                pygame.draw.line(surface, self.COLOUR_VOL_THRESHOLD, (x[i], self.bottom), (x[i], size_threshold[i]), self.bar_width)
-                pygame.draw.line(surface, self.COLOUR_VOL_AVERAGE, (x[i], self.bottom), (x[i], size_average[i]), self.bar_width)
+                pygame.draw.line(surface, self.COLOUR_VOL_THRESHOLD, (self.bar_x_pos[i], self.bottom),
+                                 (self.bar_x_pos[i], size_threshold[i]), self.bar_width)
+                pygame.draw.line(surface, self.COLOUR_VOL_AVERAGE, (self.bar_x_pos[i], self.bottom),
+                                 (self.bar_x_pos[i], size_average[i]), self.bar_width)
                 if self.beat[i]:
-                    pygame.draw.line(surface, self.COLOUR_BEAT_FOUND, (x[i], size_average[i]), (x[i], size_instant[i]), self.bar_width)
+                    pygame.draw.line(surface, self.COLOUR_BEAT_FOUND, (self.bar_x_pos[i], size_average[i]),
+                                     (self.bar_x_pos[i], size_instant[i]), self.bar_width)
                 else:
-                    pygame.draw.line(surface, self.COLOUR_VOL_INSTANT, (x[i], size_average[i]), (x[i], size_instant[i]), self.bar_width)
+                    pygame.draw.line(surface, self.COLOUR_VOL_INSTANT, (self.bar_x_pos[i], size_average[i]),
+                                     (self.bar_x_pos[i], size_instant[i]), self.bar_width)
 
 
 except ImportError:

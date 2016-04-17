@@ -28,7 +28,7 @@ def update(block):
     try:
         audio_buf = sound.queue.get(block=block)
     except Empty:
-        pass
+        return None
     # # process (temporarily calculating RMS)
     # audio_buf = np.power(audio_buf, 2)
     # audio_buf = np.mean(audio_buf)
@@ -40,17 +40,21 @@ def update(block):
 def main():  # This is the main loop
     sound.stream.start()
     b = PlotBeatDetect(average_weight=0.3, sensitivity_grad=-2.0e-4, sensitivity_offset=1.4, cutoff=0.001,
-                       position=(100, 40), size=(200, 700))
+                       position=(100, 40), size=(400, 700))
     # b = SimpleBeatDetect(average_weight=0.1, sensitivity_grad=-2.0e-2, sensitivity_offset=1.4, cutoff=0.001)
     block = True
+    draw_frame = True
     while True:
+        draw_frame = not draw_frame
         val = update(block)
         if val is not None:
             block = False
             b.update(val)
-        screen.fill(COLOUR_BACKGROUND)
-        b.draw(screen)
-        pygame.display.flip()
+        if draw_frame:
+            screen.fill(COLOUR_BACKGROUND)
+            b.draw(screen)
+            pygame.display.flip()
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sound.stream.stop()

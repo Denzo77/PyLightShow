@@ -16,7 +16,7 @@ Porting lightshow over to python.
 9. [ ] Fill in setup.py
 
 ## Bugs:
-1. [x] Issues with drawing at 60 Hz - Brought it down to 30
+1. [x] Issues with drawing at 60 Hz - Make update return None when queue is empty + reduced framerate to 30.
 2. [ ] Find alternative to queue for getting data from callback (only interested in latest version)
 3. [ ] Random level changes on spectrogram - related to (2)?
 4. [x] Fix issue with sensitivity becoming a bool. - changed to use np.maximum
