@@ -24,7 +24,7 @@ def update(block):
     :return: RMS value of audio_buf. Doubled to scale to +-1
     """
     # get audio out of queue
-    audio_buf = np.zeros(512)
+    audio_buf = np.zeros(10)
     try:
         audio_buf = sound.queue.get(block=block)
     except Empty:
@@ -57,15 +57,15 @@ def main():  # This is the main loop
         b.update(val)
         if val is not None:
             screen.fill(COLOUR_BACKGROUND)
-            # b.draw(screen)
-            draw_val(val)
-        pygame.display.flip()
+            b.draw(screen)
+            # draw_val(val)
+            pygame.display.flip()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sound.stream.stop()
                 pygame.quit()
                 sys.exit
-        clock.tick(60)
+        clock.tick(30)
 
 
 if __name__ == "__main__":
