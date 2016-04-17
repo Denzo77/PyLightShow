@@ -11,19 +11,19 @@ class BaseBeatDetect:
         :param cutoff:
         """
         # parameters
-        self.average_weight = 0.0
-        self.sensitivity_grad = 0.0
-        self.sensitivity_offset = 0.0
-        self.cutoff = 0.0
+        self.average_weight = np.array([0.0])
+        self.sensitivity_grad = np.array([0.0])
+        self.sensitivity_offset = np.array([0.0])
+        self.cutoff = np.array([0.0])
 
         # recording state
-        self.vol_instant = 0.0
-        self.vol_average = 0.0
-        self.sensitivity = 0.0
-        self.variance = 0.0
-        self.variance_weight = 0.0
-        self.old_beat = False
-        self.beat = False
+        self.vol_instant = np.array([0.0])
+        self.vol_average = np.array([0.0])
+        self.sensitivity = np.array([0.0])
+        self.variance = np.array([0.0])
+        self.variance_weight = np.array([0.0])
+        self.old_beat = np.array([False])
+        self.beat = np.array([False])
 
         self.set(average_weight, sensitivity_grad, sensitivity_offset, cutoff)
 
@@ -58,8 +58,8 @@ class BaseBeatDetect:
         # Calculate new state
         self.vol_instant = new_level
         difference = self.vol_instant - self.vol_average
-        self.vol_average += self.average_weight * difference
-        self.variance = self.variance - (self.average_weight * self.variance) + (self.variance_weight * difference * difference)
+        self.vol_average = self.vol_average + self.average_weight * difference
+        self.variance = self.variance - (self.average_weight * self.variance) + (self.variance_weight * np.power(difference, 2))
         # print(self.variance, end='\t')
         self.sensitivity = np.maximum(((self.sensitivity_grad * self.variance) + self.sensitivity_offset), 1.0)  # prevent sensitivity from going negative.
         # print(self.sensitivity, end='\t')
@@ -85,7 +85,7 @@ class BaseBeatDetect:
         self.sensitivity_grad = sensitivity_grad
         self.sensitivity_offset = sensitivity_offset
         self.cutoff = cutoff
-        self.variance_weight = average_weight/(1-average_weight)
+        self.variance_weight = average_weight/(1.0-average_weight)
 
 
 class SimpleBeatDetect(BaseBeatDetect):
@@ -100,23 +100,25 @@ try:
     import pygame
 
 
-    class GuiBeatDetect(BaseBeatDetect):
+    class PlotBeatDetect(BaseBeatDetect):
         """Extends BaseBeatDetect with draw methods.
         Requires PyGame to function.
         """
-        def __init__(self, average_weight, sensitivity_grad, sensitivity_offset, cutoff, left, top, width, height):
+        def __init__(self, average_weight, sensitivity_grad, sensitivity_offset, cutoff, position, size):
             super().__init__(average_weight, sensitivity_grad, sensitivity_offset, cutoff)
-            self.border = 2
-            self.height = height
-            self.top = top
-            self.bottom = top+height
+            self.border = 1
+            self.position = self.left, self.top = position
+            self.size = self.width, self.height = size
+            self.bottom = self.top + self.height
+            self.scale = self.height / 100.0
 
-            self.scale = height/100.0
+            self.channels = 10
+            self.bar_width = (self.width // self.channels) - self.border
 
-            self.COLOUR_VOL_INSTANT = (140, 128, 128)
-            self.COLOUR_BEAT_FOUND = (80, 200, 80)
+            self.COLOUR_VOL_INSTANT = (255, 100, 100)
+            self.COLOUR_BEAT_FOUND = (100, 255, 100)
             self.COLOUR_VOL_AVERAGE = (0, 0, 0)
-            self.COLOUR_VOL_THRESHOLD = (80, 80, 80)
+            self.COLOUR_VOL_THRESHOLD = (100, 100, 100)
 
         def dBFS(self, volume):
             """Calculated the dBFS relative to a maximum of 1.
@@ -128,40 +130,29 @@ try:
             """
             return 10.0 * np.log10(volume)
 
-
         def draw(self, surface):
             # setup
-            x = np.arange(100, 100 + 40 * len(self.vol_instant), step=40)
+            # x = np.linspace(self.left, self.left + self.width, self.channels)
+            x = np.arange(self.left, self.left + self.width, self.bar_width + self.border)
+
             # get dBFS
             size_instant = np.minimum((self.top - self.dBFS(self.vol_instant) * self.scale), 700.0)
             size_average = self.top - self.dBFS(self.vol_average) * self.scale
             size_threshold = self.top - self.dBFS(self.vol_average * self.sensitivity) * self.scale
+            print(self.variance)
             # print(self.sensitivity)
             # draw
             for i in range(len(self.vol_instant)):
                 if size_instant[i] > self.bottom:
                     print(i, end='\t')
                     print(size_instant[i])
-                pygame.draw.line(surface, self.COLOUR_VOL_THRESHOLD,(x[i], self.bottom), (x[i], size_threshold[i]), 40)
+                pygame.draw.line(surface, self.COLOUR_VOL_THRESHOLD, (x[i], self.bottom), (x[i], size_threshold[i]), self.bar_width)
+                pygame.draw.line(surface, self.COLOUR_VOL_AVERAGE, (x[i], self.bottom), (x[i], size_average[i]), self.bar_width)
                 if self.beat[i]:
-                    pygame.draw.line(surface, self.COLOUR_BEAT_FOUND, (x[i], self.bottom), (x[i], size_instant[i]), 40)
+                    pygame.draw.line(surface, self.COLOUR_BEAT_FOUND, (x[i], size_average[i]), (x[i], size_instant[i]), self.bar_width)
                 else:
-                    pygame.draw.line(surface, self.COLOUR_VOL_INSTANT, (x[i], self.bottom), (x[i], size_instant[i]), 40)
-                pygame.draw.line(surface, self.COLOUR_VOL_AVERAGE, (x[i], self.bottom-2), (x[i], size_average[i]), 36)
+                    pygame.draw.line(surface, self.COLOUR_VOL_INSTANT, (x[i], size_average[i]), (x[i], size_instant[i]), self.bar_width)
 
-
-            # pygame.draw.rect(surface, self.COLOUR_VOL_THRESHOLD, self.bar_vol_threshold)
-            # if self.beat is True:
-            #     pygame.draw.rect(surface, self.COLOUR_BEAT_FOUND, self.bar_vol_instant)
-            # else:
-            #     pygame.draw.rect(surface, self.COLOUR_VOL_INSTANT, self.bar_vol_instant)
-            # pygame.draw.rect(surface, self.COLOUR_VOL_AVERAGE, self.bar_vol_average)
-            # np.all(pygame.draw.line(screen, (100, )))
-
-            # def draw_val(indata):
-            #     indata[:] = indata[:] * 2.0e3
-            #     for i in range(len(indata)):
-            #         pygame.draw.line(screen, (100, 100, 100), (x[i], offset), (x[i], offset - int(indata[i])), 38)
 
 except ImportError:
     print("Error: Module 'PyGame' not found")

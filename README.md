@@ -12,6 +12,8 @@ Porting lightshow over to python.
 5. [ ] Port lighting control.
 6. [ ] Optimise with Cython/Numba to run fast enough on Raspberry Pi 2 (low priority).
 7. [ ] Move to using OpenGL/OpenGLES (whatever the one the RPi 2 can manage was).
+8. [ ] Write tests.
+9. [ ] Fill in setup.py
 
 ## Bugs:
 1. [x] Issues with drawing at 60 Hz - Brought it down to 30
