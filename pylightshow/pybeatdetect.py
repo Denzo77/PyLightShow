@@ -158,7 +158,7 @@ try:  # Trying to make it pygame agnostic.
             """
             return 10.0 * np.log10(volume)
 
-        def draw(self, surface):
+        def draw(self, surface):  # TODO! Force draw to be above bottom of plot
             """
             Draws a plot of the beat detection object(s) on a surface.
             The plot is drawn at self.position and is bounded by self.size.
