@@ -19,24 +19,29 @@ class BaseLight:
     Base class for lights.
     This handles the position, size and whether the light is switched on.
     """
-    def __init__(self, name, position, size):
+    def __init__(self, name, left, top, height, width):
         """
 
         :param name: Identifier for this light. Gets printed below the light.
+        :type: name: numpy array
         :param position: Position of top left corner as tuple (left, top).
+        :type: position: numpy array TODO! work out order
         :param size: Size of the light as tuple (width, height).
+        :type size: numpy array
         """
-        self.is_enabled = True
-        self.is_on = False
-        self.position = self.left, self.top = position
-        self.size = self.width, self.height = size
+        self.is_enabled = np.array([True])
+        self.is_on = np.array([False])
+        self.left = np.array(left)
+        self.top = np.array(top)
+        self.width = np.array(width)
+        self.height = np.array(height)
         self.name = name
 
     def enable(self, enabled):
         self.is_enabled = enabled
 
     def toggle(self):
-        self.is_on = not self.is_on
+        self.is_on = np.logical_not(self.is_on)
 
     def set(self, on):
         self.is_on = on
@@ -47,34 +52,47 @@ class BaseLight:
 
 class SingleLight(BaseLight):
     """
-    Light object that supports a single channel (i.e. grayscale).
+    Basic Light object that supports a single channel (i.e. grayscale).
     """
-    def __init__(self, name, position, size):
+    def __init__(self, name, left, top, width, height):
         """
 
         :param name: Identifier for this light. Gets printed below the light.
         :param position: Position of top left corner as tuple (left, top).
         :param size: Size of the light as tuple (width, height).
         """
-        super().__init__(name, position, size)
-        self.value_target = 0.0
-        self.value_current = 0.0
-        self.value_range = self.value_min, self.value_max = 0.0, 1.0  # not yet implemented
-        self.damping = 0.3
-        self.value_output = 0
+        super().__init__(name, left, top, width, height)
+        # self.value_target = np.array([0.0])
+        # self.value_current = np.array([0.0])
+        # self.value_range = self.value_min, self.value_max = np.array([0.0, 1.0])
+        # self.damping = np.array([0.0])
+        # self.value_output = np.array([0])
+        self.value_target = np.zeros(len(name))
+        self.value_current = np.zeros(len(name))
+        self.value_min = np.zeros(len(name))
+        self.value_max = np.ones(len(name))
+        self.damping = np.zeros(len(name))
+        self.damping.fill(0.3)
+        self.value_output = np.zeros(len(name), dtype=int)
 
-    def set(self, value, damped=True):
+    def fade(self, value):
         """
-        Set value to change to.
+        Fade to a new value at a rate determined by self.damped
         This only sets the internal targets. value_output is only calculated after update() is called.
         :param value: Value between 0.0 and 1.0 to set light to.
-        :param damped: Whether to smooth the change. If False, the light will immediately jump to the new value when
-        update() is called.
         :return: None
         """
         self.value_target = np.clip(value, self.value_min, self.value_max)
-        if not damped:
-            self.value_current = np.clip(value, self.value_min, self.value_max)
+
+    def flash(self, value):
+        """
+        Flash suddenly to a new value.
+        This only sets the internal targets. value_output is only calculated after update() is called.
+        :param value: Value between 0.0 and 1.0 to set light to.
+        :return: None
+        """
+        self.value_target = np.clip(value, self.value_min, self.value_max)
+        self.value_current = np.clip(value, self.value_min, self.value_max)
 
     def update(self):
         """
@@ -83,8 +101,9 @@ class SingleLight(BaseLight):
         called.
         :return: None
         """
-        self.value_output = int(self.value_current * 255.0)
+        self.value_output = (self.value_current * 255.0).astype(int)
         self.value_current = self.value_current + self.damping * (self.value_target - self.value_current)
+        # print(self.value_output)
 
     def draw(self, surface):
         """
@@ -92,8 +111,9 @@ class SingleLight(BaseLight):
         :param surface: The surface to draw the light onto.
         :return: None
         """
-        pygame.draw.rect(surface, (self.value_output, self.value_output, self.value_output),
-                         (self.position, self.size))
+        for i in range(len(self.name)):
+            pygame.draw.rect(surface, (self.value_output[i], self.value_output[i], self.value_output[i]),
+                             (self.left[i], self.top[i], self.width[i], self.height[i]))
 
 
 # class MultiLight(BaseLight):
