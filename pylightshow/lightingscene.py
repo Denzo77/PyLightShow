@@ -38,6 +38,10 @@ class BaseScene:
 
 
 class LightScene(BaseScene):  # class myClass(baseClass): means myClass inherits from baseClass
+    """
+    Note this class expects a single beats object and a single lights object containing arrays of lights.
+    Not convinced this is the best way, but it makes life quicker and easier at this point.
+    """
     def __init__(self, name, beats, lights):
         super().__init__(name)
         self.beats = beats
