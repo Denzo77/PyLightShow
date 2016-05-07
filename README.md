@@ -46,7 +46,6 @@ Porting lightshow over to python.
     - Drops.
 - More GUI stuff:
     - Move each type to it's own surface and switch to update way instead of redrawing everything.
-    -
 
 ## External Python module Dependencies:
 - PyGame
