@@ -20,13 +20,15 @@
 9. [ ] Write tests.
 10. [ ] Fill in setup.py
 
-## Bugs:
+## Bugs and problems:
 1. [x] Issues with drawing at 60 Hz - Make update return None when queue is empty + reduced framerate to 30.
 2. [ ] ~~Find alternative to queue for getting data from callback~~
 3. [x] Random level changes on spectrogram - related to (2) - See (1)
 4. [x] Fix issue with sensitivity becoming a bool. - changed to use np.maximum
 5. [x] BaseBeatDetect.beat is not returning an array. - Used np.logical_xxx functions.
 6. [ ] Sensitivity does not change adequately.
+7. [ ] update_audio can block drawing to screen on startup.
+8. [ ] JSON module cannot serialize numpy arrays.
 
 ## Possible future goals:
 - Extend for MIDI IO.
