@@ -25,13 +25,11 @@ NUMBER_OF_LIGHTS = 6
 b = PlotBeatDetect(average_weight=0.3, sensitivity_grad=-2.0e-4, sensitivity_offset=1.4, cutoff=0.001,
                    position=(100, 40), size=(400, 700))
 
+# Generate lights
 light_names = ['light ' + str(x) for x in range(NUMBER_OF_LIGHTS)]
 light_pos = [50 + x * 150 for x in range(NUMBER_OF_LIGHTS)]  # these expressions can be safely replaced with nicer ones.
-
 lights = [pylights.SingleLight(light_names[x], 600, light_pos[x], 100, 100) for x in range(NUMBER_OF_LIGHTS)]
 [print(lights[x].name + '\t' + str(lights[x].top)) for x in range(NUMBER_OF_LIGHTS)]  # print names of lights
-
-
 
 
 def save_state():
@@ -56,7 +54,16 @@ def save_state():
     - Convert to JSON with json.dumps(save_state) (and any other options I may need)
     - Write to a file
     """
-    pass
+    # [print(lights[x].__dict__) for x in range(NUMBER_OF_LIGHTS)]
+    # print(b.__dict__)
+    # print({'Lights': lights, "Beat Detect": b}.__dict__)
+    # Lights = str({"Lights": [lights[x].__dict__ for x in range(NUMBER_OF_LIGHTS)]})
+    # BeatDetects = {"BeatDetects": b.__dict__}
+    # print(Lights)
+    # with open('/home/denzo/lights.JSON', 'w') as output:
+    #     foo = json.dumps(Lights)
+    #     output.write(foo)
+
 
 
 def load_state():
@@ -89,7 +96,7 @@ def update_audio(block):
             # val.fill(0.8)
             # lights.fade(val)
     except Empty:
-        print("empty")
+        # print("empty")
         return None
 
 
@@ -117,6 +124,7 @@ def main():  # This is the main loop
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sound.stream.stop()
+                save_state()
                 pygame.quit()
                 sys.exit
         clock.tick(60)
