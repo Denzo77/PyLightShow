@@ -22,8 +22,11 @@ bar_width = 40
 
 # beats and lights
 NUMBER_OF_LIGHTS = 6
-b = PlotBeatDetect(average_weight=0.3, sensitivity_grad=-2.0e-4, sensitivity_offset=1.4, cutoff=0.001,
-                   position=(100, 40), size=(400, 700))
+# b = PlotBeatDetect(average_weight=0.3, sensitivity_grad=-2.0e-4, sensitivity_offset=1.4, cutoff=0.001,
+#                    position=(100, 40), size=(400, 700))
+beat_pos = [100 + x * 40 for x in range(10)]
+beats = [PlotBeatDetect(average_weight=0.3, sensitivity_grad=-2.0e-4, sensitivity_offset=1.4, cutoff=0.001,
+                        position=(x, 40), size=(40, 700)) for x in beat_pos]
 
 # Generate lights
 light_names = ['light ' + str(x) for x in range(NUMBER_OF_LIGHTS)]
@@ -88,7 +91,7 @@ def update_audio(block):
     :return: Array of sound values or None if queue is empty.
     """
     try:
-        b.update(sound.queue.get(block=block))
+        [beats.update(sound.queue.get(block=block)) # todo fix this bit
         if b.beat[1]:
             val = np.empty(4)
             val.fill(0.1)

@@ -138,9 +138,7 @@ try:  # Trying to make it pygame agnostic.
             self.bottom = self.top + self.height
             self.scale = self.height / 100.0
 
-            self.channels = 10
-            self.bar_width = (self.width // self.channels) - self.border
-            self.bar_x_pos = np.arange(self.left, self.left + self.width, self.bar_width + self.border)
+            self.bar_width = self.width - self.border
 
             self.COLOUR_VOL_INSTANT = (255, 100, 100)
             self.COLOUR_BEAT_FOUND = (100, 255, 100)
@@ -169,19 +167,32 @@ try:  # Trying to make it pygame agnostic.
             size_instant = np.minimum((self.top - self.dBFS(self.vol_instant) * self.scale), 700.0)
             size_average = self.top - self.dBFS(self.vol_average) * self.scale
             size_threshold = self.top - self.dBFS(self.vol_average * self.sensitivity) * self.scale
-            # Loop through beat detection instances, drawing them all.
-            for i in range(len(self.vol_instant)):
-                pygame.draw.line(surface, self.COLOUR_VOL_THRESHOLD, (self.bar_x_pos[i], self.bottom),
-                                 (self.bar_x_pos[i], size_threshold[i]), self.bar_width)
-                pygame.draw.line(surface, self.COLOUR_VOL_AVERAGE, (self.bar_x_pos[i], self.bottom),
-                                 (self.bar_x_pos[i], size_average[i]), self.bar_width)
-                # Change the colour of the instantaneous volume plot if there is a beat.
-                if self.beat[i]:
-                    pygame.draw.line(surface, self.COLOUR_BEAT_FOUND, (self.bar_x_pos[i], size_average[i]),
-                                     (self.bar_x_pos[i], size_instant[i]), self.bar_width)
-                else:
-                    pygame.draw.line(surface, self.COLOUR_VOL_INSTANT, (self.bar_x_pos[i], size_average[i]),
-                                     (self.bar_x_pos[i], size_instant[i]), self.bar_width)
+            # draw lines
+            pygame.draw.line(surface, self.COLOUR_VOL_THRESHOLD, (self.left, self.bottom),
+                             (self.left, size_threshold), self.bar_width)
+            pygame.draw.line(surface, self.COLOUR_VOL_AVERAGE, (self.left, self.bottom),
+                             (self.left, size_average), self.bar_width)
+            # Change the colour of the instantaneous volume plot if there is a beat.
+            if self.beat:
+                pygame.draw.line(surface, self.COLOUR_BEAT_FOUND, (self.left, size_average),
+                                 (self.left, size_instant), self.bar_width)
+            else:
+                pygame.draw.line(surface, self.COLOUR_VOL_INSTANT, (self.left, size_average),
+                                 (self.left, size_instant), self.bar_width)
+
+            # # Loop through beat detection instances, drawing them all.
+            # for i in range(len(self.vol_instant)):
+            #     pygame.draw.line(surface, self.COLOUR_VOL_THRESHOLD, (self.bar_x_pos[i], self.bottom),
+            #                      (self.bar_x_pos[i], size_threshold[i]), self.bar_width)
+            #     pygame.draw.line(surface, self.COLOUR_VOL_AVERAGE, (self.bar_x_pos[i], self.bottom),
+            #                      (self.bar_x_pos[i], size_average[i]), self.bar_width)
+            #     # Change the colour of the instantaneous volume plot if there is a beat.
+            #     if self.beat[i]:
+            #         pygame.draw.line(surface, self.COLOUR_BEAT_FOUND, (self.bar_x_pos[i], size_average[i]),
+            #                          (self.bar_x_pos[i], size_instant[i]), self.bar_width)
+            #     else:
+            #         pygame.draw.line(surface, self.COLOUR_VOL_INSTANT, (self.bar_x_pos[i], size_average[i]),
+            #                          (self.bar_x_pos[i], size_instant[i]), self.bar_width)
 
 
 except ImportError:
