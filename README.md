@@ -5,7 +5,7 @@ Porting lightshow over to python.
 - PyGame
 - SoundDevice
 - NumPy
-- SciPy
+- ~~SciPy~~ (need to check if problems are to do with switching to numpy fft)
 
 ## Possible future dependencies:
 - cython/numba?

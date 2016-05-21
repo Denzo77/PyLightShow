@@ -29,6 +29,7 @@
 6. [ ] Sensitivity does not change adequately.
 7. [ ] update_audio can block drawing to screen on startup.
 8. [ ] JSON module cannot serialize numpy arrays.
+9. [ ] FFT broken again. Either due to my soundcard or due to switching to numpy fft/hamming window
 
 ## Possible future goals:
 - Extend for MIDI IO.
