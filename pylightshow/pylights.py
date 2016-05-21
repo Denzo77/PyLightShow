@@ -62,18 +62,11 @@ class SingleLight(BaseLight):
         :param size: Size of the light as tuple (width, height).
         """
         super().__init__(name, left, top, width, height)
-        # self.value_target = np.array([0.0])
-        # self.value_current = np.array([0.0])
-        # self.value_range = self.value_min, self.value_max = np.array([0.0, 1.0])
-        # self.damping = np.array([0.0])
-        # self.value_output = np.array([0])
-        self.value_target = np.zeros(len(name))
-        self.value_current = np.zeros(len(name))
-        self.value_min = np.zeros(len(name))
-        self.value_max = np.ones(len(name))
-        self.damping = np.zeros(len(name))
-        self.damping.fill(0.3)
-        self.value_output = np.zeros(len(name), dtype=int)
+        self.value_target = np.array([0.0])
+        self.value_current = np.array([0.0])
+        self.value_range = self.value_min, self.value_max = np.array([0.0, 1.0])
+        self.damping = np.array([0.3])
+        self.value_output = np.array([0])
 
     def fade(self, value):
         """
@@ -111,9 +104,8 @@ class SingleLight(BaseLight):
         :param surface: The surface to draw the light onto.
         :return: None
         """
-        for i in range(len(self.name)):
-            pygame.draw.rect(surface, (self.value_output[i], self.value_output[i], self.value_output[i]),
-                             (self.left[i], self.top[i], self.width[i], self.height[i]))
+        pygame.draw.rect(surface, (self.value_output, self.value_output, self.value_output),
+                         (self.left, self.top, self.width, self.height))
 
 
 # class MultiLight(BaseLight):

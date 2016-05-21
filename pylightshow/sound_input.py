@@ -9,7 +9,7 @@ import numpy as np
 # from scipy import fftpack, signal
 
 
-DEVICE = None
+DEVICE = 0
 CHANNELS = 1
 SAMPLERATE = 44100.0
 BLOCKSIZE = 1024  # gives us a minimum frequency of ~43 Hz
