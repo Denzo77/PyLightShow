@@ -91,7 +91,7 @@ def update_audio(block):
     :return: Array of sound values or None if queue is empty.
     """
     try:
-        [beats.update(sound.queue.get(block=block)) # todo fix this bit
+        [beats.update(sound.queue.get(block=block))]  # todo fix this bit
         if b.beat[1]:
             val = np.empty(4)
             val.fill(0.1)
