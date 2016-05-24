@@ -92,16 +92,10 @@ def update_audio(block):
     :return: Array of sound values or None if queue is empty.
     """
     try:
-        pass
-        # [beats.update(sound.queue.get(block=block))]  # todo fix this bit
-        # if b.beat[1]:
-        #     val = np.empty(4)
-        #     val.fill(0.1)
-            # lights.fade(val)
-            # val.fill(0.8)
-            # lights.fade(val)
+        sound_in = sound.queue.get(block=block)  # todo fix this bit
+        [beats[x].update(sound_in[x]) for x in range(len(beats))]
     except Empty:
-        # print("empty")
+        print("empty")
         return None
 
 
@@ -113,18 +107,16 @@ def main():  # This is the main loop
     current_scene = lightingscene.MyScene()
     while True:
         # Only update stuff that depends on audio if buffer in queue.
-        # update_audio(block)
+        update_audio(block)
         # We want these to run independent of sound input (lights carry on fading even if stream is interrupted)
         current_scene.update(lights)
         [lights[x].update() for x in range(NUMBER_OF_LIGHTS)]
-        # if lights[0].value_current > 0.75:
-        #     lights[0].fade(np.zeros(4))
         block = False
         # Only draw every other frame (30 Hz) to reduce artifacts.
         draw_frame = not draw_frame
         if draw_frame:
             screen.fill(COLOUR_BACKGROUND)
-            # b.draw(screen)
+            [beats[x].draw(screen) for x in range(len(beats))]
             [lights[x].draw(screen) for x in range(NUMBER_OF_LIGHTS)]
             pygame.display.flip()
         # Events loop.

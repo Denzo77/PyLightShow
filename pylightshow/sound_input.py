@@ -44,7 +44,7 @@ def audio_callback(indata, frames, time, status):
             start_index = 2**i
             stop_index = 2**(i+1)
             outdata[i] = np.sum(temp[start_index:stop_index]) * 1.0e-4
-        # queue.put(outdata)  # Put in queue for inter thread comms.
+        queue.put(outdata)  # Put in queue for inter thread comms.
 
 # Set up the audio stream
 stream = sd.InputStream(device=DEVICE,
