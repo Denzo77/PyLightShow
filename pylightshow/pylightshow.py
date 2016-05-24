@@ -23,8 +23,6 @@ bar_width = 40
 
 # beats and lights
 NUMBER_OF_LIGHTS = 6
-# b = PlotBeatDetect(average_weight=0.3, sensitivity_grad=-2.0e-4, sensitivity_offset=1.4, cutoff=0.001,
-#                    position=(100, 40), size=(400, 700))
 beat_pos = [100 + x * 40 for x in range(10)]
 beats = [PlotBeatDetect(average_weight=0.3, sensitivity_grad=-2.0e-4, sensitivity_offset=1.4, cutoff=0.001,
                         position=(x, 40), size=(40, 700)) for x in beat_pos]
